@@ -51,8 +51,6 @@ export default function TokenSelector(props) {
   
         setSelectedToken(token)
         props.onTokenSelected(token)
-
-        // await isAccountRegistered(user.address, token)
       }
     }}>
       <Combobox.Label className="block text-2xl font-flow font-bold">Token</Combobox.Label>

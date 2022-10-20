@@ -10,7 +10,7 @@ module hello_move::bayou {
     const EMISMATCH: u64 = 10;
     const EINVALID_AMOUNT: u64 = 11;
 
-    public fun batch_transfer<CoinType>(sender: &signer, recipients: vector<address>, amounts: vector<u64>) {
+    public entry fun batch_transfer<CoinType>(sender: &signer, recipients: vector<address>, amounts: vector<u64>) {
         let num_recipients = vector::length(&recipients);
         let num_amounts = vector::length(&amounts);
         assert!(num_recipients == num_amounts, EMISMATCH);
@@ -238,6 +238,23 @@ module hello_move::bayou {
         let amounts = vector::empty();
         vector::push_back(&mut amounts, 100000);
         vector::push_back(&mut amounts, 20000000000);
+
+        batch_transfer<AptosCoin>(&sender, recipients, amounts);
+    }
+
+    #[test(framework = @aptos_framework, sender = @token_sender)]
+    public fun test_transfer_to_sender(framework: signer, sender: signer) {
+        prepare_apt(framework, &sender);
+        let sender_addr = signer::address_of(&sender);
+
+        let recipients = vector::empty();
+        let carol = from_bcs::to_address(x"00000000000000000000000000000000000000000000000000000000000ca501");
+        vector::push_back(&mut recipients, sender_addr);
+        vector::push_back(&mut recipients, carol);
+
+        let amounts = vector::empty();
+        vector::push_back(&mut amounts, 100000);
+        vector::push_back(&mut amounts, 200000);
 
         batch_transfer<AptosCoin>(&sender, recipients, amounts);
     }

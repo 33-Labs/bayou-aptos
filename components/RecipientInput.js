@@ -3,6 +3,8 @@ import { useState, useEffect, useCallback } from 'react'
 import publicConfig from '../publicConfig'
 import Decimal from 'decimal.js'
 import CSVSelector from './CSVSelector'
+import { aptosClient, batchTransfer } from '../aptos/client'
+import { shortenedAddress, toBiggerUnit, toSmallerUnit } from '../aptos/utils'
 
 export default function RecipientsInput(props) {
   const [rawRecordsStr, setRawRecordsStr] = useState('')
@@ -33,12 +35,12 @@ export default function RecipientsInput(props) {
   }
 
   const Pending = 'Pending'
-  const Sealed = 'Sealed'
+  const Confirmed = 'Confirmed'
   const ExecutionFailed = 'Execution Failed'
   const Rejected = 'Transaction Rejected'
   const TransactionStatus = {
     Pending,
-    Sealed,
+    Confirmed,
     ExecutionFailed,
     Rejected
   }
@@ -50,26 +52,12 @@ export default function RecipientsInput(props) {
   }, [selectedToken])
 
   const filterRecordsOnChain = async (token, records) => {
-    // let addresses = records.map((r) => r.address)
-    // let unpreparedAddresses = await bayouService.batchQueryReceiver(token, addresses)
-
     let preparedRecords = records
-    // let preparedRecords = records.filter((r) => {
-    //   return !unpreparedAddresses.includes(r.address)
-    // })
-
     let unpreparedRecords = []
-    // let unpreparedRecords = records.filter((r) => {
-    //   return unpreparedAddresses.includes(r.address)
-    // })
 
     setRecordsSum(preparedRecords.reduce((p, c) => {
       return p.add(c.amount)
     }, new Decimal(0)))
-
-    // preparedRecords.sort((a, b) => { return a.id - b.id })
-    // unpreparedRecords.sort((a, b) => { return a.id - b.id })
-
     return [preparedRecords, unpreparedRecords]
   }
 
@@ -132,7 +120,7 @@ export default function RecipientsInput(props) {
         <div className="flex gap-x-4 mt-4 mb-20 justify-between">
           <button
             type="button"
-            disabled={processState.disabled || txStatus == TransactionStatus.Pending}
+            disabled={processState.disabled || txStatus && (txStatus == TransactionStatus.Pending)}
             className={`disabled:opacity-50 h-14 left-0 justify-self-end inline-flex items-center px-6 py-3 border border-transparent text-base font-medium shadow-md text-black bg-aptos-green hover:bg-aptos-green-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aptos-green`}
             onClick={async () => {
               cleanStatus()
@@ -239,7 +227,7 @@ export default function RecipientsInput(props) {
                       <li key={index}>
                         <div className="flex items-center">
                           <div className="flex-none w-30 text-lg font-flow leading-10">
-                            {record.address}
+                            {shortenedAddress(record.address)}
                           </div>
                           <div className="grow border-b mx-2 border-black"></div>
                           <div className="flex-none w-30 text-lg font-flow leading-10">
@@ -293,28 +281,37 @@ export default function RecipientsInput(props) {
               <div className="flex gap-x-4 mt-8 mb-20 items-end h-14 mb-30">
                 <button
                   type="button"
-                  disabled={props.tokenBalance.sub(recordsSum).isNegative() || (txStatus && txStatus == TransactionStatus.Pending)}
+                  disabled={props.tokenBalance.sub(recordsSum).isNegative() || (txStatus && (txStatus == TransactionStatus.Pending || txStatus == TransactionStatus.Confirmed))}
                   className="shadow-md disabled:opacity-50 justify-self-end h-14 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium text-black bg-aptos-green hover:bg-aptos-green-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aptos-green"
                   onClick={async () => {
                     cleanTxInfo()
-                    // if (selectedToken) {
-                    //   try {
-                    //     const transactionId = await bayouService.batchTransfer(selectedToken, validRecords)
-                    //     setTxid(transactionId)
-                    //     setTxStatus(TransactionStatus.Pending)
+                    if (selectedToken) {
+                      const recipients = validRecords.map((record) => {
+                        return record.address
+                      })
 
-                    //     await fcl.tx(transactionId).onceSealed()
-                    //     setTxStatus(TransactionStatus.Sealed)
-                    //   } catch (e) {
-                    //     if (typeof e === "string" && e.includes("Execution failed")) {
-                    //       setTxStatus(TransactionStatus.ExecutionFailed)
-                    //     } else if (typeof e === "object" && e.message.includes("Declined")) {
-                    //       setTxStatus(TransactionStatus.Rejected)
-                    //     } else if (typeof e === "string" && e.includes("Declined")) {
-                    //       setTxStatus(TransactionStatus.Rejected)
-                    //     }
-                    //   }
-                    // }
+                      const amounts = validRecords.map((record) => {
+                        return toSmallerUnit(record.amount.toString(), selectedToken.decimals).toString()
+                      })
+
+                      try {
+                        const pendingTransaction = await batchTransfer(selectedToken, recipients, amounts)
+                        console.log(pendingTransaction)
+                        setTxid(pendingTransaction.hash)
+                        setTxStatus(TransactionStatus.Pending)
+
+                        await aptosClient.waitForTransaction(pendingTransaction.hash)
+                        setTxStatus(TransactionStatus.Confirmed)
+                      } catch (e) {
+                        if (typeof e === "object" && e.message.includes("rejected the request")) {
+                          setTxStatus(TransactionStatus.Rejected)
+                        } else if (typeof e === "string" && e.includes("rejected the request")) {
+                          setTxStatus(TransactionStatus.Rejected)
+                        } else {
+                          setTxStatus(TransactionStatus.ExecutionFailed)
+                        }
+                      }
+                    }
                   }}
                 >
                   Transfer
@@ -330,7 +327,7 @@ export default function RecipientsInput(props) {
                   txStatus && (
                     <div className="min-w-0 flex flex-col justify-center h-14 justify-self-end">
                       {
-                        txStatus == TransactionStatus.Sealed
+                        txStatus == TransactionStatus.Confirmed
                           ? <label className="font-flow text-md text-aptos-green font-bold">
                             Status: Success
                           </label>
