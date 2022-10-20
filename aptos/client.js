@@ -1,13 +1,29 @@
 import { AptosClient } from "aptos"
-import { toBiggerUnit } from "./utils";
+import { toBiggerUnit } from "./utils"
+import Decimal from 'decimal.js'
+import publicConfig from "../publicConfig";
 
-const client = new AptosClient('https://fullnode.testnet.aptoslabs.com/v1');
+const client = new AptosClient(publicConfig.nodeURL)
+
+// export const getTokenBalance = async (address, token) => {
+//   const resources = await client.getAccountResources(address)
+//   const accountResource = resources.find((r) => r.type === token.type)
+//   if (accountResource) {
+//     return toBiggerUnit(accountResource.data.coin.value, token.decimals)
+//   }
+//   return new Decimal(0)
+// }
 
 export const getTokenBalance = async (address, token) => {
-  const resources = await client.getAccountResources(address)
-  const accountResource = resources.find((r) => r.type === token.tokenType)
-  if (accountResource) {
-    return toBiggerUnit(accountResource.data.coin.value, token.decimals)
+  try {
+    const resource = await client.getAccountResource(address, token.type)
+    return toBiggerUnit(resource.data.coin.value, token.decimals)
+  } catch (e) {
+    return new Decimal(0)
   }
-  return new Decimal(0)
+}
+
+export const isAccountRegistered = async (address, token) => {
+  const resource = await client.getAccountResource(address, token.type)
+  console.log(resource)
 }

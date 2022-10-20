@@ -1,15 +1,15 @@
 import Head from 'next/head'
-import { useState, useEffect } from "react";
-import { userConnected } from '../aptos/utils';
-import { connect, getConnectedAccount } from '../aptos/wallet';
+import { useState, useEffect } from "react"
+import { userConnected } from '../aptos/utils'
+import { connect, getConnectedAccount } from '../aptos/wallet'
 
 import Decimal from 'decimal.js'
 import NavigationBar from '../components/NavigationBar'
-import WalletConnector from '../components/WalletConnector';
-import WalletSelectorModal from '../components/WalletSelectorModal';
+import WalletConnector from '../components/WalletConnector'
+import WalletSelectorModal from '../components/WalletSelectorModal'
 import TokenSelector from '../components/TokenSelector'
-// import RecipientsInput from '../components/RecipientsInput'
-// import Footer from '../components/Footer';
+import RecipientsInput from '../components/RecipientInput'
+import Footer from '../components/Footer';
 
 export default function Home(props) {
   const [user, setUser] = useState(null)
@@ -56,7 +56,7 @@ export default function Home(props) {
         <title>bayou | batch token transfer tool</title>
         <meta property="og:title" content="aptos-green | batch token transfer tool" key="title" />
       </Head>
-      <div className="container mx-auto max-w-[680px] min-w-[350px] px-8">
+      <div className="container mx-auto max-w-[880px] min-w-[350px] px-8">
         <NavigationBar user={user} />
         <WalletConnector
           className="mt-12 w-full"
@@ -79,20 +79,20 @@ export default function Home(props) {
                   onTokenSelected={(token) => setSelectedToken(token)}
                   onBalanceFetched={(balance) => setTokenBalance(balance)}
                 />
-                {/* <RecipientsInput
+                <RecipientsInput
                   className="w-full"
                   user={user}
                   selectedToken={selectedToken}
                   tokenBalance={tokenBalance}
                   setNotificationContent={setNotificationContent}
                   setShowNotification={setShowNotification}
-                /> */}
+                />
               </>
             )
           }
 
         </div>
-        {/* <Footer /> */}
+        <Footer />
         <WalletSelectorModal open={showWalletSelector} setOpen={setShowWalletSelector} setWallet={setWallet} />
       </div>
     </>

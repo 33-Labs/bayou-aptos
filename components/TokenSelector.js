@@ -9,7 +9,7 @@ import { TokenList } from '../aptos/token-list';
 
 import publicConfig from '../publicConfig'
 import { userConnected } from '../aptos/utils';
-import { getTokenBalance } from '../aptos/client';
+import { getTokenBalance, isAccountRegistered } from '../aptos/client';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -51,6 +51,8 @@ export default function TokenSelector(props) {
   
         setSelectedToken(token)
         props.onTokenSelected(token)
+
+        // await isAccountRegistered(user.address, token)
       }
     }}>
       <Combobox.Label className="block text-2xl font-flow font-bold">Token</Combobox.Label>

@@ -50,23 +50,25 @@ export default function RecipientsInput(props) {
   }, [selectedToken])
 
   const filterRecordsOnChain = async (token, records) => {
-    let addresses = records.map((r) => r.address)
-    let unpreparedAddresses = await bayouService.batchQueryReceiver(token, addresses)
+    // let addresses = records.map((r) => r.address)
+    // let unpreparedAddresses = await bayouService.batchQueryReceiver(token, addresses)
 
-    let preparedRecords = records.filter((r) => {
-      return !unpreparedAddresses.includes(r.address)
-    })
+    let preparedRecords = records
+    // let preparedRecords = records.filter((r) => {
+    //   return !unpreparedAddresses.includes(r.address)
+    // })
 
-    let unpreparedRecords = records.filter((r) => {
-      return unpreparedAddresses.includes(r.address)
-    })
+    let unpreparedRecords = []
+    // let unpreparedRecords = records.filter((r) => {
+    //   return unpreparedAddresses.includes(r.address)
+    // })
 
     setRecordsSum(preparedRecords.reduce((p, c) => {
       return p.add(c.amount)
     }, new Decimal(0)))
 
-    preparedRecords.sort((a, b) => { return a.id - b.id })
-    unpreparedRecords.sort((a, b) => { return a.id - b.id })
+    // preparedRecords.sort((a, b) => { return a.id - b.id })
+    // unpreparedRecords.sort((a, b) => { return a.id - b.id })
 
     return [preparedRecords, unpreparedRecords]
   }
@@ -81,11 +83,11 @@ export default function RecipientsInput(props) {
       try {
         const [address, rawAmount] = rawRecord.split(",")
         const amount = new Decimal(rawAmount)
-        if (!amount.isPositive() || amount.decimalPlaces() > 8) { throw "invalid amount" }
+        if (!amount.isPositive()) { throw "invalid amount" }
 
-        if (!address.startsWith("0x") || address.length != 18) { throw "invalid address" }
+        if (!address.startsWith("0x") || address.length != 66) { throw "invalid address" }
         const bytes = Buffer.from(address.replace("0x", ""), "hex")
-        if (bytes.length != 8) { throw "invalid address" }
+        if (bytes.length != 32) { throw "invalid address" }
 
         records.push({ id: i, address: address, amount: amount, rawRecord: rawRecord })
       } catch (e) {
@@ -109,11 +111,11 @@ export default function RecipientsInput(props) {
             rows={8}
             name="records"
             id="records"
-            className="focus:ring-flow-green-dark focus:border-flow-green-dark bg-flow-green/10 resize-none block w-full border-flow-green font-flow text-lg placeholder:text-gray-300"
+            className="focus:ring-aptos-green-dark focus:border-aptos-green-dark bg-aptos-green/10 resize-none block w-full border-aptos-green font-flow text-lg placeholder:text-gray-300"
             value={rawRecordsStr}
             spellCheck={false}
             placeholder={
-              "0x81e6c006878e0ff4d8f05d9ccd6294c4579338ddb3f1febdca125c8ae31b17d9,1.6"
+              "0x81e6c00687ca...125c8ae31b17d9,1.6"
             }
             disabled={txStatus == TransactionStatus.Pending}
             onChange={(event) => {
@@ -131,7 +133,7 @@ export default function RecipientsInput(props) {
           <button
             type="button"
             disabled={processState.disabled || txStatus == TransactionStatus.Pending}
-            className={`disabled:opacity-50 h-14 left-0 justify-self-end inline-flex items-center px-6 py-3 border border-transparent text-base font-medium shadow-md text-black bg-flow-green hover:bg-flow-green-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-flow-green`}
+            className={`disabled:opacity-50 h-14 left-0 justify-self-end inline-flex items-center px-6 py-3 border border-transparent text-base font-medium shadow-md text-black bg-aptos-green hover:bg-aptos-green-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aptos-green`}
             onClick={async () => {
               cleanStatus()
               if (selectedToken && rawRecordsStr.trim().length > 0) {
@@ -292,7 +294,7 @@ export default function RecipientsInput(props) {
                 <button
                   type="button"
                   disabled={props.tokenBalance.sub(recordsSum).isNegative() || (txStatus && txStatus == TransactionStatus.Pending)}
-                  className="shadow-md disabled:opacity-50 justify-self-end h-14 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium text-black bg-flow-green hover:bg-flow-green-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-flow-green"
+                  className="shadow-md disabled:opacity-50 justify-self-end h-14 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium text-black bg-aptos-green hover:bg-aptos-green-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aptos-green"
                   onClick={async () => {
                     cleanTxInfo()
                     // if (selectedToken) {
@@ -329,7 +331,7 @@ export default function RecipientsInput(props) {
                     <div className="min-w-0 flex flex-col justify-center h-14 justify-self-end">
                       {
                         txStatus == TransactionStatus.Sealed
-                          ? <label className="font-flow text-md text-flow-green font-bold">
+                          ? <label className="font-flow text-md text-aptos-green font-bold">
                             Status: Success
                           </label>
                           : (txStatus == TransactionStatus.ExecutionFailed || txStatus == TransactionStatus.Rejected)
@@ -345,7 +347,7 @@ export default function RecipientsInput(props) {
                         <a
                           href={`${publicConfig.flowscanURL}/transaction/${txid}`}
                           rel="noopener noreferrer"
-                          target="_blank" className="truncate font-flow text-sm leading-6 underline decoration-flow-green decoration-2">
+                          target="_blank" className="truncate font-flow text-sm leading-6 underline decoration-aptos-green decoration-2">
                           {`${txid}`}
                         </a >
                       )}

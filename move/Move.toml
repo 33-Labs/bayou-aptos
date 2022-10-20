@@ -3,7 +3,7 @@ name = 'bayou'
 version = '1.0.0'
 
 [addresses]
-hello_move = "0x33"
+hello_move = "_"
 token_sender = "0x333"
 
 [dependencies.AptosFramework]

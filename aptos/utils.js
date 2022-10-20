@@ -8,7 +8,9 @@ export const shortenedAddress = (address) => {
 }
 
 export const userConnected = (user) => {
-  return user.method == "connected" && user.status == 200
+  return (user.wallet == "Martian" && user.method == "connected" && user.status == 200) ||
+    (user.wallet == "Petra" && user.address && user.publicKey) ||
+    (user.address && user.publicKey)
 }
 
 export const toBiggerUnit = (rawAmount, decimals) => {

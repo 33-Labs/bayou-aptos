@@ -4,11 +4,11 @@ export default function CSVSelector(props) {
   return (
     <div className="shrink flex items-center gap-x-2">
       <a href={sample} download
-        className="text-flow-green-dark text-base font-medium"
+        className="text-aptos-green-dark text-base font-medium"
       >Sample</a>
       <div className="shadow-md h-14 px-3
-      font-medium text-base text-flow-green-dark bg-flow-green/50
-    hover:bg-flow-green-dark hover:text-black"
+      font-medium text-base text-aptos-green-dark bg-aptos-green/50
+    hover:bg-aptos-green-dark hover:text-black"
       >
         <label
           htmlFor="csv-selector"

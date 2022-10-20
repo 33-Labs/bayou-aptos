@@ -27,7 +27,12 @@ export default function WalletConnector(props) {
           type="button"
           className="h-14 mt-8 mb-20 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium shadow-md text-black bg-aptos-green hover:bg-aptos-green-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bayou"
           onClick={async () => {
-            await disconnect(user)
+            // WORKAROUND:
+            // If the user switch account and then click disconnect wallet,
+            // Petra will raise The requested method and/or account has not been authorized by the user. 
+            try {
+              await disconnect(user)
+            } catch (e) {}
             setWallet(null)
             setUser(null)
           }}
