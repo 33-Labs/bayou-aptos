@@ -5,8 +5,11 @@ import Decimal from 'decimal.js'
 import CSVSelector from './CSVSelector'
 import { aptosClient, batchTransfer } from '../aptos/client'
 import { shortenedAddress, toBiggerUnit, toSmallerUnit } from '../aptos/utils'
+import { useSWRConfig } from 'swr'
 
 export default function RecipientsInput(props) {
+  const { mutate } = useSWRConfig()
+
   const [rawRecordsStr, setRawRecordsStr] = useState('')
   const [recordsSum, setRecordsSum] = useState(new Decimal(0))
   const [validRecords, setValidRecords] = useState([])
@@ -14,7 +17,7 @@ export default function RecipientsInput(props) {
   const [invalidRecords, setInvalidRecords] = useState([])
   const [txid, setTxid] = useState(null)
   const [txStatus, setTxStatus] = useState(null)
-  const { selectedToken, setShowNotification, setNotificationContent } = props
+  const { user, selectedToken, setShowNotification, setNotificationContent } = props
 
   const [processState, setProcessState] = useState({
     disabled: false,
@@ -146,7 +149,7 @@ export default function RecipientsInput(props) {
             {processState.text}
           </button>
           <CSVSelector
-          disabled={txStatus == TransactionStatus.Pending}
+            disabled={txStatus == TransactionStatus.Pending}
             onChange={(event) => {
               const f = event.target.files[0]
               const reader = new FileReader()
@@ -302,6 +305,7 @@ export default function RecipientsInput(props) {
 
                         await aptosClient.waitForTransaction(pendingTransaction.hash)
                         setTxStatus(TransactionStatus.Confirmed)
+                        mutate(["balanceFetcher", user.address, selectedToken])
                       } catch (e) {
                         if (typeof e === "object" && e.message.includes("rejected the request")) {
                           setTxStatus(TransactionStatus.Rejected)

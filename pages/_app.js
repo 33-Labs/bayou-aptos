@@ -8,7 +8,7 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <div className="bg-white text-black bg-[url('/bg.png')] bg-cover bg-center min-h-screen">
-      <Component {...pageProps} 
+      <Component {...pageProps}
         setShowNotification={setShowNotification}
         setNotificationContent={setNotificationContent} />
 

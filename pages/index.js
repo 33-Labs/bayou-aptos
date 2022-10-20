@@ -16,14 +16,14 @@ export default function Home(props) {
   const [wallet, setWallet] = useState(null)
   const [showWalletSelector, setShowWalletSelector] = useState(false)
   const [selectedToken, setSelectedToken] = useState(null)
-  const [tokenBalance, setTokenBalance] = useState(0)
+  const [tokenBalance, setTokenBalance] = useState(new Decimal(0))
   const { setShowNotification, setNotificationContent } = props
 
   useEffect(() => {
     const initUser = async () => {
       const account = await getConnectedAccount()
-      if (account) { 
-        setUser(account) 
+      if (account) {
+        setUser(account)
       }
     }
 
@@ -76,8 +76,10 @@ export default function Home(props) {
                 <TokenSelector
                   className="w-full mb-20"
                   user={user}
-                  onTokenSelected={(token) => setSelectedToken(token)}
-                  onBalanceFetched={(balance) => setTokenBalance(balance)}
+                  selectedToken={selectedToken}
+                  setSelectedToken={setSelectedToken}
+                  tokenBalance={tokenBalance}
+                  setTokenBalance={setTokenBalance}
                 />
                 <RecipientsInput
                   className="w-full"

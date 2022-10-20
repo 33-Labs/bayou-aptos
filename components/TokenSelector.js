@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { CheckIcon, SelectorIcon } from '@heroicons/react/solid'
 import { Combobox } from '@headlessui/react'
+import useSWR, { useSWRConfig } from 'swr'
 
-// import bayouService from '../lib/bayouService'
 import Decimal from 'decimal.js';
 import { TokenList } from '../aptos/token-list';
 
@@ -15,13 +15,16 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
+const balanceFetcher = async (funcName, address, token) => {
+  return await getTokenBalance(address, token)
+}
+
 export default function TokenSelector(props) {
   const [query, setQuery] = useState('')
-  const [selectedToken, setSelectedToken] = useState()
-  const [balance, setBalance] = useState(new Decimal(0))
   const [tokens, setTokens] = useState([]);
 
-  const { user } = props
+  const { user, selectedToken, setSelectedToken, tokenBalance, setTokenBalance } = props
+  const { mutate } = useSWRConfig()
 
   useEffect(() => {
     let network = "mainnet"
@@ -32,30 +35,35 @@ export default function TokenSelector(props) {
     setTokens(TokenList(network))
   }, [setTokens])
 
+
+  const { data: balanceData, error: balanceError } = useSWR(
+    selectedToken && user ? ["balanceFetcher", user.address, selectedToken] : null, balanceFetcher)
+
+  useEffect(() => {
+    if (balanceData) {
+      setTokenBalance(balanceData)
+    }
+  }, [balanceData])
+
   const filteredTokens =
     query === ''
       ? tokens
       : tokens.filter((token) => {
-          const content = `${token.name} (${token.symbol})`
-          return content.toLowerCase().includes(query.toLowerCase())
-        })
+        const content = `${token.name} (${token.symbol})`
+        return content.toLowerCase().includes(query.toLowerCase())
+      })
 
   return (
     <Combobox as="div" className={props.className} value={user && userConnected(user) && selectedToken} onChange={async (token) => {
       if (user && userConnected(user)) {
-        setBalance(0)
-        getTokenBalance(user.address, token).then((balance) => {
-          setBalance(balance)
-          props.onBalanceFetched(balance)
-        })
-  
+        setTokenBalance(new Decimal(0))
         setSelectedToken(token)
-        props.onTokenSelected(token)
+        mutate(["balanceFetcher", user.address, token])
       }
     }}>
       <Combobox.Label className="block text-2xl font-flow font-bold">Token</Combobox.Label>
-      {user && userConnected(user) ? (selectedToken 
-        ? <Combobox.Label className="block text-md font-flow leading-10">Your balance is {balance.toString()} {selectedToken.symbol}</Combobox.Label>
+      {user && userConnected(user) ? (selectedToken
+        ? <Combobox.Label className="block text-md font-flow leading-10">Your balance is {tokenBalance.toString()} {selectedToken.symbol}</Combobox.Label>
         : <Combobox.Label className="block text-md font-flow leading-10">Select the token to transfer</Combobox.Label>
       ) : <Combobox.Label className="block text-md font-flow leading-10">Please connect to wallet</Combobox.Label>
       }
@@ -88,7 +96,7 @@ export default function TokenSelector(props) {
                   <>
                     <div className="flex items-center">
                       <div className="w-6 h-6 relative">
-                      <Image src={token.logoURI} alt="" layout="fill" objectFit="cover" className="rounded-full" />
+                        <Image src={token.logoURI} alt="" layout="fill" objectFit="cover" className="rounded-full" />
                       </div>
                       <span className={classNames('ml-3 truncate', selected && 'font-semibold')}>{`${token.name} (${token.symbol})`}</span>
                     </div>

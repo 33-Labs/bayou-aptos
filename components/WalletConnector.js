@@ -14,14 +14,14 @@ export default function WalletConnector(props) {
     return (
       <div >
         <label className="w-full whitespace-pre block font-flow text-md leading-10 truncate">
-        {"Logged in as "}
-        <a 
-          href={``}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-flow text-lg leading-10 underline decoration-aptos-green decoration-2 truncate">
+          {"Logged in as "}
+          <a
+            href={``}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-flow text-lg leading-10 underline decoration-aptos-green decoration-2 truncate">
             {user ? shortenedAddress(user.address) : "No Address"}
-        </a>
+          </a>
         </label>
         <button
           type="button"
@@ -32,12 +32,12 @@ export default function WalletConnector(props) {
             // Petra will raise The requested method and/or account has not been authorized by the user. 
             try {
               await disconnect(user)
-            } catch (e) {}
+            } catch (e) { }
             setWallet(null)
             setUser(null)
           }}
-          >
-            Disconnect
+        >
+          Disconnect
         </button>
       </div>
     )
@@ -55,7 +55,7 @@ export default function WalletConnector(props) {
           onClick={async () => {
             setShowWalletSelector(true)
           }}
-          >
+        >
           Connect Wallet
         </button>
       </div>
@@ -65,7 +65,7 @@ export default function WalletConnector(props) {
   return (
     <div className={props.className}>
       <label className="block text-2xl font-bold font-flow">
-      Connect to Wallet
+        Connect to Wallet
       </label>
       {user ? <AuthedState /> : <UnauthenticatedState />}
     </div>
