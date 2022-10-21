@@ -72,6 +72,21 @@ export default function WalletSelectorModal(props) {
                         Martian
                       </label>
                     </button>
+                    <button className="flex w-full rounded-xl p-4 items-center gap-x-4
+                    ring-1 ring-black ring-opacity-10 overflow-hidden
+                    bg-white hover:bg-gray-100"
+                      onClick={async () => {
+                        localStorage.setItem("wallet", "Pontem")
+                        if (await Wallet["Pontem"].getWallet(true)) {
+                          setWallet("Pontem")
+                        }
+                        setOpen(false)
+                      }}>
+                      <Image className="rounded-full" src="/pontem.jpeg" alt="" width={36} height={36} priority />
+                      <label className="font-flow text-lg">
+                        Pontem
+                      </label>
+                    </button>
                   </div>
                 </div>
               </Dialog.Panel>
