@@ -2,6 +2,7 @@ import { Fragment } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
+import { Wallet } from '../aptos/wallet'
 
 export default function WalletSelectorModal(props) {
   const router = useRouter()
@@ -43,9 +44,11 @@ export default function WalletSelectorModal(props) {
                     <button className="flex w-full rounded-xl p-4 items-center gap-x-4
                     ring-1 ring-black ring-opacity-10 overflow-hidden
                     bg-white hover:bg-gray-100"
-                      onClick={() => {
+                      onClick={async () => {
                         localStorage.setItem("wallet", "Petra")
-                        setWallet("Petra")
+                        if (await Wallet["Petra"].getWallet(true)) {
+                          setWallet("Petra")
+                        }
                         setOpen(false)
                       }}
                     >
@@ -57,12 +60,14 @@ export default function WalletSelectorModal(props) {
                     <button className="flex w-full rounded-xl p-4 items-center gap-x-4
                     ring-1 ring-black ring-opacity-10 overflow-hidden
                     bg-white hover:bg-gray-100"
-                      onClick={() => {
+                      onClick={async () => {
                         localStorage.setItem("wallet", "Martian")
-                        setWallet("Martian")
+                        if (await Wallet["Martian"].getWallet(true)) {
+                          setWallet("Martian")
+                        }
                         setOpen(false)
                       }}>
-                      <Image className="rounded-full" src="/martian.png" alt="" width={36} height={36} priority />
+                      <Image className="rounded-full" src="/martian.jpeg" alt="" width={36} height={36} priority />
                       <label className="font-flow text-lg">
                         Martian
                       </label>
