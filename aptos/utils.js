@@ -1,4 +1,5 @@
 import Decimal from 'decimal.js'
+import publicConfig from '../publicConfig'
 
 export const shortenedAddress = (address) => {
   if (typeof address != "string") { return "UNKNOWN" }
@@ -18,7 +19,15 @@ export const toBiggerUnit = (rawAmount, decimals) => {
 }
 
 export const toSmallerUnit = (amount, decimals) => {
-  console.log(amount)
-  console.log(decimals)
   return new Decimal(amount).mul(new Decimal(10).toPower(decimals))
+}
+
+export const networkSupported = (network) => {
+  return network.toLowerCase() == publicConfig.chainEnv.toLowerCase()
+}
+
+export const isEmptyObject = (obj) => {
+  return obj 
+    && Object.keys(obj).length === 0
+    && Object.getPrototypeOf(obj) === Object.prototype
 }

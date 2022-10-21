@@ -44,6 +44,7 @@ export default function WalletSelectorModal(props) {
                     ring-1 ring-black ring-opacity-10 overflow-hidden
                     bg-white hover:bg-gray-100"
                       onClick={() => {
+                        localStorage.setItem("wallet", "Petra")
                         setWallet("Petra")
                         setOpen(false)
                       }}
@@ -57,6 +58,7 @@ export default function WalletSelectorModal(props) {
                     ring-1 ring-black ring-opacity-10 overflow-hidden
                     bg-white hover:bg-gray-100"
                       onClick={() => {
+                        localStorage.setItem("wallet", "Martian")
                         setWallet("Martian")
                         setOpen(false)
                       }}>

@@ -2,13 +2,14 @@
 import { useEffect } from "react";
 import { connect, disconnect } from "../aptos/wallet";
 import { shortenedAddress } from "../aptos/utils";
+import publicConfig from "../publicConfig";
 // import config from "../flow/config.js"
 // import publicConfig from "../publicConfig.js";
 
 
 
 export default function WalletConnector(props) {
-  const { user, setUser, setWallet, setShowWalletSelector } = props
+  const { user, setUser, setWallet, setShowWalletSelector, setShowWrongNetwork } = props
 
   const AuthedState = () => {
     return (
@@ -16,7 +17,7 @@ export default function WalletConnector(props) {
         <label className="w-full whitespace-pre block font-flow text-md leading-10 truncate">
           {"Logged in as "}
           <a
-            href={``}
+            href={`${publicConfig.explorerURL}/account/${user.address}?netwokr=${publicConfig.chainEnv.toLowerCase()}`}
             target="_blank"
             rel="noopener noreferrer"
             className="font-flow text-lg leading-10 underline decoration-aptos-green decoration-2 truncate">
@@ -32,7 +33,9 @@ export default function WalletConnector(props) {
             // Petra will raise The requested method and/or account has not been authorized by the user. 
             try {
               await disconnect(user)
-            } catch (e) { }
+            } catch (e) { console.log(e) }
+            localStorage.setItem("wallet", "")
+            setShowWrongNetwork(false)
             setWallet(null)
             setUser(null)
           }}

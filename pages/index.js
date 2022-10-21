@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import { useState, useEffect } from "react"
-import { userConnected } from '../aptos/utils'
-import { connect, getConnectedAccount } from '../aptos/wallet'
+import { isEmptyObject, networkSupported, userConnected } from '../aptos/utils'
+import { connect, getConnectedAccount, Wallet } from '../aptos/wallet'
 
 import Decimal from 'decimal.js'
 import NavigationBar from '../components/NavigationBar'
@@ -10,6 +10,22 @@ import WalletSelectorModal from '../components/WalletSelectorModal'
 import TokenSelector from '../components/TokenSelector'
 import RecipientsInput from '../components/RecipientInput'
 import Footer from '../components/Footer';
+import { XCircleIcon } from '@heroicons/react/solid'
+
+const WrongNetworkInfo = () => {
+  return (
+    <div className="bg-red-50 p-4">
+      <div className="flex">
+        <div className="flex-shrink-0">
+          <XCircleIcon className="h-5 w-5 text-red-400" aria-hidden="true" />
+        </div>
+        <div className="ml-3 flex-1 md:flex md:justify-between">
+          <p className="text-sm text-red-800">Wrong Network</p>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function Home(props) {
   const [user, setUser] = useState(null)
@@ -17,13 +33,20 @@ export default function Home(props) {
   const [showWalletSelector, setShowWalletSelector] = useState(false)
   const [selectedToken, setSelectedToken] = useState(null)
   const [tokenBalance, setTokenBalance] = useState(new Decimal(0))
+  const [showWrongNetwork, setShowWrongNetwork] = useState(false)
+
   const { setShowNotification, setNotificationContent } = props
 
   useEffect(() => {
     const initUser = async () => {
-      const account = await getConnectedAccount()
+      const {account: account, wallet: wallet} = await getConnectedAccount()
       if (account) {
         setUser(account)
+      }
+
+      if (wallet) {
+        const network = await wallet.getNetwork()
+        setShowWrongNetwork(!networkSupported(network))
       }
     }
 
@@ -31,24 +54,50 @@ export default function Home(props) {
   }, [])
 
   useEffect(() => {
-    console.log("YY")
     if (!wallet) { return }
     const connectWallet = async () => {
-      console.log(wallet)
-      const user = await connect(wallet)
-      console.log(user)
-      if (user) {
-        setUser(user)
+      const w = Wallet[wallet]
+
+      const user = await w.connect()
+      if (user) { 
+        setUser(user) 
       }
+
+      const network = await w.getNetwork()
+      setShowWrongNetwork(!networkSupported(network))
+
+      w.onAccountChange(async (newAccount) => {
+        const currentWallet = localStorage.getItem("wallet")
+        if (currentWallet != wallet) { return }
+
+        try {
+          const newAccount = await w.connect()
+          setUser({...newAccount, wallet: wallet})
+        } catch (e) {
+          setUser(null)
+          setWallet(null)
+        } 
+      })
+
+      w.onNetworkChange(async (supported) => {
+        const currentWallet = localStorage.getItem("wallet")
+        if (currentWallet != wallet) { return }
+        setShowWrongNetwork(!supported)
+      })
+
     }
-    connectWallet().catch(console.error)
+
+    connectWallet().catch((e) => {
+      setWallet(null)
+      setUser(null)
+      console.error(e)
+    })
   }, [wallet])
 
   useEffect((user) => {
     setSelectedToken(null)
     setTokenBalance(new Decimal(0))
   }, [user])
-
 
   return (
     <>
@@ -57,6 +106,10 @@ export default function Home(props) {
         <meta property="og:title" content="aptos-green | batch token transfer tool" key="title" />
       </Head>
       <div className="container mx-auto max-w-[880px] min-w-[350px] px-8">
+        {
+          showWrongNetwork ?
+            WrongNetworkInfo() : null
+        }
         <NavigationBar user={user} />
         <WalletConnector
           className="mt-12 w-full"
@@ -66,6 +119,7 @@ export default function Home(props) {
           setWallet={setWallet}
           setShowWalletSelector={setShowWalletSelector}
           setShowNotification={setShowNotification}
+          setShowWrongNetwork={setShowWrongNetwork}
           setNotificationContent={setNotificationContent}
         />
 

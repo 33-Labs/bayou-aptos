@@ -41,11 +41,13 @@ export default function RecipientsInput(props) {
   const Confirmed = 'Confirmed'
   const ExecutionFailed = 'Execution Failed'
   const Rejected = 'Transaction Rejected'
+  const Unknown = "Unknown"
   const TransactionStatus = {
     Pending,
     Confirmed,
     ExecutionFailed,
-    Rejected
+    Rejected,
+    Unknown
   }
 
   useEffect(() => {
@@ -285,7 +287,7 @@ export default function RecipientsInput(props) {
                 <button
                   type="button"
                   disabled={props.tokenBalance.sub(recordsSum).isNegative() || (txStatus && (txStatus == TransactionStatus.Pending || txStatus == TransactionStatus.Confirmed))}
-                  className="shadow-md disabled:opacity-50 justify-self-end h-14 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium text-black bg-aptos-green hover:bg-aptos-green-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aptos-green"
+                  className="shadow-md disabled:opacity-50 justify-self-end h-14 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium text-black bg-aptos-green hover:bg-aptos-green-dark disabled:hover:bg-aptos-green focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aptos-green"
                   onClick={async () => {
                     cleanTxInfo()
                     if (selectedToken) {
@@ -298,16 +300,22 @@ export default function RecipientsInput(props) {
                       })
 
                       try {
-                        const pendingTransaction = await batchTransfer(selectedToken, recipients, amounts)
-                        console.log(pendingTransaction)
-                        setTxid(pendingTransaction.hash)
+                        const txHash = await batchTransfer(selectedToken, recipients, amounts)
+                        setTxid(txHash)
                         setTxStatus(TransactionStatus.Pending)
 
-                        await aptosClient.waitForTransaction(pendingTransaction.hash)
-                        setTxStatus(TransactionStatus.Confirmed)
+                        const txn = await aptosClient.waitForTransactionWithResult(txHash)
+                        if (txn.hash) {
+                          setTxStatus(TransactionStatus.Confirmed)
+                        } else {
+                          setTxStatus(TransactionStatus.Unknown)
+                        }
                         mutate(["balanceFetcher", user.address, selectedToken])
                       } catch (e) {
-                        if (typeof e === "object" && e.message.includes("rejected the request")) {
+                        console.log("e", e)
+                        if (typeof e === "string" && e.includes("Wallet not found")) {
+                          setTxStatus(TransactionStatus.Unknown)
+                        } else if (typeof e === "object" && e.message.includes("rejected the request")) {
                           setTxStatus(TransactionStatus.Rejected)
                         } else if (typeof e === "string" && e.includes("rejected the request")) {
                           setTxStatus(TransactionStatus.Rejected)
@@ -346,7 +354,7 @@ export default function RecipientsInput(props) {
 
                       {txid && (
                         <a
-                          href={`${publicConfig.flowscanURL}/transaction/${txid}`}
+                          href={`${publicConfig.explorerURL}/txn/${txid}?network=${publicConfig.chainEnv.toLowerCase()}`}
                           rel="noopener noreferrer"
                           target="_blank" className="truncate font-flow text-sm leading-6 underline decoration-aptos-green decoration-2">
                           {`${txid}`}
