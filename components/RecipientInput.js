@@ -41,7 +41,7 @@ export default function RecipientsInput(props) {
   const Confirmed = 'Confirmed'
   const ExecutionFailed = 'Execution Failed'
   const Rejected = 'Transaction Rejected'
-  const Unknown = "Unknown"
+  const Unknown = 'Unknown'
   const TransactionStatus = {
     Pending,
     Confirmed,
@@ -171,7 +171,7 @@ export default function RecipientsInput(props) {
           unpreparedRecords.length > 0 && (
             <>
               <label className="block font-flow text-md leading-7">
-                These accounts haven't register the token you want to send. Please contact the owners of these accounts for detail.
+                These accounts have not register the token you want to send. Please contact the owners of these accounts for detail.
               </label>
               <div className="mt-1">
                 <textarea
