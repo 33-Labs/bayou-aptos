@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="m-auto mt-20 max-w-[880px] flex flex-1 justify-center items-center py-8 border-t border-solid box-border">
       <div className="flex flex-col gap-y-2 items-center">
         <div className="flex gap-x-2">
-          <a href="https://github.com/33-Labs/bayou"
+          <a href="https://github.com/33-Labs/bayou-aptos"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -45,7 +45,7 @@ export default function Footer() {
           rel="noopener noreferrer"
           className="font-flow text-sm whitespace-pre"
         >
-          Made by <span className="underline font-bold decoration-flow-green decoration-2">33Labs</span> with ❤️
+          Made by <span className="underline font-bold decoration-aptos-green decoration-2">33Labs</span> with ❤️
         </a>
       </div>
 

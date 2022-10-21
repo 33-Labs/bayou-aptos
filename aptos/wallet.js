@@ -3,7 +3,7 @@ import { networkSupported } from "./utils"
 export const Wallet = {
   Pontem: {
     name: "Pontem",
-    signAndSubmitTransaction: async function(sender, payload) {
+    signAndSubmitTransaction: async function (sender, payload) {
       const wallet = this.getWallet(false)
       if (wallet) {
         const pendingTx = await wallet.signAndSubmit(payload)
@@ -12,7 +12,7 @@ export const Wallet = {
       }
       return "Wallet not found"
     },
-    onNetworkChange: function(callback) {
+    onNetworkChange: function (callback) {
       const wallet = this.getWallet(false)
       if (wallet) {
         wallet.onChangeNetwork(async (newNetwork) => {
@@ -23,20 +23,20 @@ export const Wallet = {
             network = "testnet"
           } else if (network.includes("mainnet")) {
             network = "mainnet"
-          } 
+          }
           const supported = networkSupported(network)
           callback(supported)
         })
       }
     },
-    onAccountChange: function(callback) {
+    onAccountChange: function (callback) {
       const wallet = this.getWallet(false)
       if (wallet) {
         wallet.onChangeAccount(callback)
       }
     },
-    getNetwork: async function() {
-      const wallet = this.getWallet(false) 
+    getNetwork: async function () {
+      const wallet = this.getWallet(false)
       if (wallet) {
         const network = (await wallet.network()).name.toLowerCase()
         if (network.includes("devnet")) {
@@ -45,47 +45,47 @@ export const Wallet = {
           return "testnet"
         } else if (network.includes("mainnet")) {
           return "mainnet"
-        } 
+        }
       }
-      
+
       return "unknown"
     },
     getWallet: (directToInstall) => {
       if ('pontem' in window) {
         return window.pontem
-      } 
+      }
       if (directToInstall) {
         window.open("https://pontem.network", "_blank")
       }
       return null
     },
-    isConnected: async function() {
-      const wallet = this.getWallet(false) 
+    isConnected: async function () {
+      const wallet = this.getWallet(false)
       if (wallet) {
         return await wallet.isConnected()
       }
       return false
     },
-    getAccount: async function() {
+    getAccount: async function () {
       const wallet = this.getWallet(false)
       if (wallet && (await wallet.isConnected())) {
         const account = await wallet.account()
-        return {...account, wallet: this.name}
-      } 
+        return { ...account, wallet: this.name }
+      }
       return null
     },
-    connect: async function() {
+    connect: async function () {
       const wallet = this.getWallet(true)
-      if (!wallet) { 
+      if (!wallet) {
         console.error("Wallet not found")
         return null
       }
       const account = await wallet.connect()
-      return {...account, wallet: this.name}
+      return { ...account, wallet: this.name }
     },
-    disconnect: async function() {
+    disconnect: async function () {
       const wallet = this.getWallet(false)
-      if (!wallet) { 
+      if (!wallet) {
         console.error("Wallet not found")
         return null
       }
@@ -94,7 +94,7 @@ export const Wallet = {
   },
   Petra: {
     name: "Petra",
-    signAndSubmitTransaction: async function(sender, payload) {
+    signAndSubmitTransaction: async function (sender, payload) {
       const wallet = this.getWallet(false)
       if (wallet) {
         const pendingTx = await wallet.signAndSubmitTransaction(payload)
@@ -102,7 +102,7 @@ export const Wallet = {
       }
       return "Wallet not found"
     },
-    onNetworkChange: function(callback) {
+    onNetworkChange: function (callback) {
       const wallet = this.getWallet(false)
       if (wallet) {
         wallet.onNetworkChange(async (newNetwork) => {
@@ -112,14 +112,14 @@ export const Wallet = {
         })
       }
     },
-    onAccountChange: function(callback) {
+    onAccountChange: function (callback) {
       const wallet = this.getWallet(false)
       if (wallet) {
         wallet.onAccountChange(callback)
       }
     },
-    getNetwork: async function() {
-      const wallet = this.getWallet(false) 
+    getNetwork: async function () {
+      const wallet = this.getWallet(false)
       if (wallet) {
         return await wallet.network()
       }
@@ -128,39 +128,39 @@ export const Wallet = {
     getWallet: (directToInstall) => {
       if ('aptos' in window) {
         return window.aptos
-      } 
+      }
       if (directToInstall) {
         window.open("https://petra.app", "_blank")
       }
       return null
     },
-    isConnected: async function() {
-      const wallet = this.getWallet(false) 
+    isConnected: async function () {
+      const wallet = this.getWallet(false)
       if (wallet) {
         return await wallet.isConnected()
       }
       return false
     },
-    getAccount: async function() {
+    getAccount: async function () {
       const wallet = this.getWallet(false)
       if (wallet && (await wallet.isConnected())) {
         const account = await wallet.account()
-        return {...account, wallet: this.name}
-      } 
+        return { ...account, wallet: this.name }
+      }
       return null
     },
-    connect: async function() {
+    connect: async function () {
       const wallet = this.getWallet(true)
-      if (!wallet) { 
+      if (!wallet) {
         console.error("Wallet not found")
         return null
       }
       const account = await wallet.connect()
-      return {...account, wallet: this.name}
+      return { ...account, wallet: this.name }
     },
-    disconnect: async function() {
+    disconnect: async function () {
       const wallet = this.getWallet(false)
-      if (!wallet) { 
+      if (!wallet) {
         console.error("Wallet not found")
         return null
       }
@@ -169,14 +169,14 @@ export const Wallet = {
   },
   Martian: {
     name: "Martian",
-    signAndSubmitTransaction: function(account, payload) {
+    signAndSubmitTransaction: function (account, payload) {
       const wallet = this.getWallet(false)
       if (wallet) {
         return wallet.generateSignAndSubmitTransaction(account.address, payload)
       }
       return "Wallet not found"
     },
-    onNetworkChange: function(callback) {
+    onNetworkChange: function (callback) {
       const wallet = this.getWallet(false)
       if (wallet) {
         wallet.onNetworkChange(async (network) => {
@@ -185,14 +185,14 @@ export const Wallet = {
         })
       }
     },
-    onAccountChange: function(callback) {
+    onAccountChange: function (callback) {
       const wallet = this.getWallet(false)
       if (wallet) {
         wallet.onAccountChange(callback)
       }
     },
-    getNetwork: async function() {
-      const wallet = this.getWallet(false) 
+    getNetwork: async function () {
+      const wallet = this.getWallet(false)
       if (wallet) {
         return await wallet.network()
       }
@@ -201,32 +201,32 @@ export const Wallet = {
     getWallet: (directToInstall) => {
       if ('martian' in window) {
         return window.martian
-      } 
+      }
       if (directToInstall) {
         window.open("https://www.martianwallet.xyz/", "_blank")
       }
       return null
     },
-    getAccount: async function() {
+    getAccount: async function () {
       const wallet = this.getWallet(false)
       if (wallet && (await wallet.isConnected())) {
         const account = await wallet.account()
-        return {...account, wallet: this.name}
-      } 
+        return { ...account, wallet: this.name }
+      }
       return null
     },
-    connect: async function() {
+    connect: async function () {
       const wallet = this.getWallet(true)
-      if (!wallet) { 
+      if (!wallet) {
         console.error("Wallet not found")
         return null
       }
       const account = await wallet.connect()
-      return {...account, wallet: this.name}
+      return { ...account, wallet: this.name }
     },
-    disconnect: async function() {
+    disconnect: async function () {
       const wallet = this.getWallet(false)
-      if (!wallet) { 
+      if (!wallet) {
         console.error("Wallet not found")
         return null
       }
@@ -249,10 +249,10 @@ export const disconnect = async (user) => {
 
 export const getConnectedAccount = async () => {
   let account = await Wallet.Petra.getAccount()
-  if (account) { return {account: account, wallet: Wallet.Petra} }
+  if (account) { return { account: account, wallet: Wallet.Petra } }
 
   account = await Wallet.Martian.getAccount()
-  if (account) { return {account: account, wallet: Wallet.Martian } }
+  if (account) { return { account: account, wallet: Wallet.Martian } }
 
-  return {account: null, wallet: null}
+  return { account: null, wallet: null }
 }

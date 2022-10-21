@@ -27,7 +27,7 @@ export const isAccountRegistered = async (address, token) => {
 export const batchTransfer = async (token, recipients, amounts) => {
   const payload = {
     type: "entry_function_payload",
-    function: "0x2518acf6dc31955a622f8626927364df87491a7887d1694d66e016e4a5686c26::bayou::batch_transfer",
+    function: `${publicConfig.bayouAddress}::bayou::batch_transfer`,
     type_arguments: [token.module],
     arguments: [recipients, amounts],
   }
