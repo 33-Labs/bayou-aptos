@@ -42,7 +42,7 @@ export default function WalletSelectorModal(props) {
                   </Dialog.Title>
                   <div className="flex flex-col items-center justify-center gap-y-4 mt-4">
                     <button className="flex w-full rounded-xl p-4 items-center gap-x-4
-                    ring-1 ring-black ring-opacity-10 overflow-hidden
+                    ring-1 ring-black ring-opacity-10 overflow-hidden text-black
                     bg-white hover:bg-gray-100"
                       onClick={async () => {
                         localStorage.setItem("wallet", "Petra")
@@ -58,7 +58,7 @@ export default function WalletSelectorModal(props) {
                       </label>
                     </button>
                     <button className="flex w-full rounded-xl p-4 items-center gap-x-4
-                    ring-1 ring-black ring-opacity-10 overflow-hidden
+                    ring-1 ring-black ring-opacity-10 overflow-hidden text-black
                     bg-white hover:bg-gray-100"
                       onClick={async () => {
                         localStorage.setItem("wallet", "Martian")
@@ -73,7 +73,7 @@ export default function WalletSelectorModal(props) {
                       </label>
                     </button>
                     <button className="flex w-full rounded-xl p-4 items-center gap-x-4
-                    ring-1 ring-black ring-opacity-10 overflow-hidden
+                    ring-1 ring-black ring-opacity-10 overflow-hidden text-black
                     bg-white hover:bg-gray-100"
                       onClick={async () => {
                         localStorage.setItem("wallet", "Pontem")
